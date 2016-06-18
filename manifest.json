@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "Tab Clustering",
+  "version": "1.0.0",
+  "description": "Change tabs order with url/title",
+  "icons": 
+  {
+  },
+  "permissions": ["tabs"],
+  "background": {
+    "scripts": [
+      "handle_sorting.js"
+    ]
+  },
+  "browser_action": {
+    "default_title": "Tab Clustering"
+  }
+}
