@@ -10,9 +10,27 @@ function sortTabs(prop){
     tabs.forEach(function(tab){
       chrome.tabs.move(tab.id, {index: -1});
 
+      // http://www.claireshu.com/favicon1.ico
+      var favicons = ["http://www.claireshu.com/favicon1.ico", 
+                      "http://www.claireshu.com/favicon2.ico", 
+                      "http://www.claireshu.com/favicon3.ico", 
+                      "http://www.claireshu.com/favicon4.ico", 
+                      "http://www.claireshu.com/favicon5.ico",
+                      "http://www.claireshu.com/favicon6.ico", 
+                      "http://www.claireshu.com/favicon7.ico", 
+                      "http://www.claireshu.com/favicon8.ico", 
+                      "http://www.claireshu.com/favicon9.ico", 
+                      "http://www.claireshu.com/favicon0.ico"];
+      var favicon = favicons[2]; 
+      var string1 = "document.title = 'zoom zoom'";
+      var string2 = "document.quuerySelectorAll(\"link[rel*='mask-icon']\")[0].href = '" + favicon + "'";
+      var string3 = "document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = '" + favicon + "'";
+      var string4 = "document.querySelectorAll(\"link[rel*='icon']\")[0].href = '" + favicon + "'";
+      var vlongstring = string1 + ", " + string2 + ", " + string3; 
+
       // Changes the title and favicon 
-      chrome.tabs.executeScript(tab.id,{code:"document.title = 'zoom zoom', document.querySelectorAll(\"link[rel*='mask-icon']\")[0].href = 'http://www.google.com/favicon.ico', document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = 'http://www.google.com/favicon.ico'"});
-      chrome.tabs.executeScript(tab.id,{code:"document.querySelectorAll(\"link[rel*='icon']\")[0].href = 'http://www.google.com/favicon.ico'"});
+      chrome.tabs.executeScript(tab.id,{code: vlongstring});
+      chrome.tabs.executeScript(tab.id,{code: string4});
     });
   });
 }
@@ -42,3 +60,7 @@ chrome.tabs.onUpdated.addListener(function(tabId , info) {
     getPageSource();
   }
 });
+
+function changeCurrentTabIcon() {
+
+}
