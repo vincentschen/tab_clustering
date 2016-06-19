@@ -27,7 +27,7 @@ function computeMostSimilarCluster(clusters, similarities){
 }
 
 function tabUpdated(clustersObj, similarities, activeTabId){
-    var threshold = 0.5;
+    var threshold = 0.8;
     var highest = computeMostSimilarCluster(clustersObj.clusters,similarities);
     
     console.log("highest similarity: " + highest);
