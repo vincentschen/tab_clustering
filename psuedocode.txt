@@ -2,10 +2,24 @@ high-level overview:
 
 - initialize json
 - create a listener for tab creation/load
+- create a listener for tab removal
 
 on tab creation/load:
 
 - send tab data to backend to compute similarity scores [returns similarity scores for each tab]
-- create averages for each cluster by iterating through each cluster
+- create averages for each cluster by iterating through each cluster; also keep track of the highest average and the associated cluster's id
 - change the json
-	- if no clusters have a high enough average, add a new cluster: add {"id": new_id, "start": new_start, "end": new_end} to the JSON; the new_id will be derived by taking the total number of current clusters and adding one; the new_start and new_end will both be the number of total tabs (including the one that has just been added)
+    -if the highest average is over a certain threshold (which we define ourselves), then alter the JSON in the following fashion:
+        -find the cluster that is to contain the new tab and add one to its end
+        -iterate over all other clusters and add one to the start and one to the end of any cluster where the start is equal to or greater than the end of the cluster we added a tab to
+    -if no clusters have a high enough average, add a new cluster: add {"id": new_id, "start": new_start, "end": new_end} to the JSON; the new_id will be derived by taking the total number of current clusters and adding one; the new_start and new_end will both be the number of total tabs (including the one that has just been added)
+- move the tab to the appropriate place in the lineup
+
+on tab removal:
+- change the json
+    -find the cluster that the tab belonged to
+    -cluster.end = cluster.end - 1;
+    -threshold = cluster.end;
+    -for (all clusters where cluster.start > threshold)
+        -cluster.start --;
+	-cluster.end --;
