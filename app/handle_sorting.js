@@ -1,3 +1,19 @@
+/* 
+ * DEUG: generate random response of designated size to mimic backend response 
+ */
+function generateRandomResponse(size) {
+  
+  var res = []
+  while (res.length < size) {
+    var curr_val = Math.random();    
+    res.push(curr_val);
+  }
+   
+  return res;   
+}
+
+function findCategory() {}
+
 /*
  * Sort tabs based on tab property  
  */  
@@ -18,6 +34,26 @@ function sortTabs(prop){
   });
 }
 
+function makeApiCall(url, type, data, callback) {
+  function invokeApi() {
+    $.ajax({
+      url: url,
+      type: type,
+      dataType: 'json',
+      data: data,
+              
+      contentType: "application/json",
+      success: function (response) {
+        console.log("response : " + JSON.stringify(response));
+        if (callback && callback != null) {
+          callback(response);
+        }
+
+      }
+    });
+  }
+}
+
 /* 
  * Executes a script that retrieves the page source
  */ 
@@ -26,8 +62,14 @@ function getPageSource() {
     { 
       code: "document.getElementsByTagName('html')[0].innerHTML;"
     }, 
-    function (ps1) {
-      console.log(ps1);
+    function (source) {
+      console.log(source);
+      
+      apiUrl = "http://www.google.com";
+      makeApiCall(apiUrl, 'get', null, function(response){
+        console.log(response)
+      });
+      
     }
   );
 }
@@ -39,6 +81,7 @@ chrome.tabs.onUpdated.addListener(function(tabId , info) {
   
   // when page load completed
   if (info.status == "complete") {
+    console.log("Page loaded")
     sortTabs("url");
     getPageSource();
   }
