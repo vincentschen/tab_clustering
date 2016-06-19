@@ -56,10 +56,11 @@ function tabUpdated(clustersObj, similarities, activeTabId){
     if (highest[0] > threshold){ //add new tab to existing cluster
         console.log('passes threshold');
         clustersObj.clusters[highest[1]].end++;
-        var num = (findClusterByTab(clustersObj, highest[1].end))%10
+        var num = (findClusterByTab(clustersObj, highest[1].end))%10;
         setTitleAndIcon(num, activeTabId); 
         //getCurrentTab(activeTabId, findClusterByTab(clustersObj, highest[1].end)%10); 
  	    clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[highest[1]].end, 1);
+        console.log("favicon num: " + num); 
         //move tab over
         console.log("moving this tab: " + activeTabId);
         chrome.tabs.move(activeTabId, {index: clustersObj.clusters[highest[1]].end})
@@ -70,8 +71,9 @@ function tabUpdated(clustersObj, similarities, activeTabId){
         clustersObj['clusters'].push({"id": clustersObj.clusters.length, "start": similarities.length, "end": similarities.length});
         chrome.tabs.move(activeTabId, {index: similarities.length})
         //getCurrentTab(activeTabId, findClusterByTab(clustersObj, highest[1].end)%10); 
-        var num = (findClusterByTab(clustersObj, highest[1].end))%10
+        var num = (findClusterByTab(clustersObj, highest[1].end))%10;
         setTitleAndIcon(num, activeTabId); 
+        console.log("favicon num create: " + num); 
 
     }
     return clustersObj;
@@ -83,11 +85,11 @@ function tabUpdated(clustersObj, similarities, activeTabId){
 function tabRemoved(clustersObj, tabID) {
     var remove = findClusterByTab(clustersObj, tabID);
     if (remove != null) {
-	if (clustersObj.clusters[remove].end != clustersObj.clusters[remove]start){
-	    clustersObj.clusters[remove].end--;
+    	if (clustersObj.clusters[remove].end != clustersObj.clusters[remove].start){
+    	    clustersObj.clusters[remove].end--;
             clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[remove].end, -1);
-	} else {
-	    clustersObj.clusters.splice(remove, 1);
+    	} else {
+    	    clustersObj.clusters.splice(remove, 1);
         }
     }
     return clustersObj;
