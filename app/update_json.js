@@ -1,5 +1,18 @@
+var favicons = ["http://www.claireshu.com/favicon1.ico", 
+                "http://www.claireshu.com/favicon2.ico", 
+                "http://www.claireshu.com/favicon3.ico", 
+                "http://www.claireshu.com/favicon4.ico", 
+                "http://www.claireshu.com/favicon5.ico",
+                "http://www.claireshu.com/favicon6.ico", 
+                "http://www.claireshu.com/favicon7.ico", 
+                "http://www.claireshu.com/favicon8.ico", 
+                "http://www.claireshu.com/favicon9.ico", 
+                "http://www.claireshu.com/favicon0.ico"];
+
+
 function findClusterByTab(clustersObj, tabId){
     var clusters = clustersObj.clusters;
+
     for (var i = 0; i < clusters.length; i++){
         var start = clusters[i].start;
         if (tabId >= start) {
@@ -25,25 +38,31 @@ function computeMostSimilarCluster(clusters, similarities){
     return highest;
 }
 
-function tabUpdated(clustersObj, similarities, activeTab){
+function tabUpdated(clustersObj, similarities, activeTabId){
     var threshold = 0.5;
     var highest = computeMostSimilarCluster(clustersObj.clusters,similarities);
     
     console.log("highest similarity: " + highest);
     if (highest[0] > threshold){ //add new tab to existing cluster
-        getCurrentTab()
         console.log('passes threshold');
-        clustersObj.clusters[highest[1]].end ++;
- 	clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[highest[1]].end, 1);
+        clustersObj.clusters[highest[1]].end++;
+        var num = (findClusterByTab(clustersObj, highest[1].end))%10
+        setTitleAndIcon(num, activeTabId); 
+        //getCurrentTab(activeTabId, findClusterByTab(clustersObj, highest[1].end)%10); 
+ 	    clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[highest[1]].end, 1);
         //move tab over
-        console.log("moving this tab: " + activeTab);
-        chrome.tabs.move(activeTab, {index: clustersObj.clusters[highest[1]].end})
+        console.log("moving this tab: " + activeTabId);
+        chrome.tabs.move(activeTabId, {index: clustersObj.clusters[highest[1]].end})
         
     } else { //make a new cluster
         console.log("fails threshold -- make a new cluster");
         console.log(similarities.length);
         clustersObj['clusters'].push({"id": clustersObj.clusters.length, "start": similarities.length, "end": similarities.length});
-	chrome.tabs.move(activeTab.id, {index: similarities.length}
+        chrome.tabs.move(activeTabId, {index: similarities.length})
+        //getCurrentTab(activeTabId, findClusterByTab(clustersObj, highest[1].end)%10); 
+        var num = (findClusterByTab(clustersObj, highest[1].end))%10
+        setTitleAndIcon(num, activeTabId); 
+
     }
     return clustersObj;
 }
@@ -68,32 +87,16 @@ function shiftAllTabs (clustersObj, target, shift) {
     return clustersObj;
 }
 
-function getCurrentTab(prop, num) {
-    prop = prop || "url";
-    chrome.tabs.query({currentWindow: true}, function(tabs){
-        chrome.tabs.getSelected(null, function(tab){
-            var favicons = ["http://www.claireshu.com/favicon1.ico", 
-                            "http://www.claireshu.com/favicon2.ico", 
-                            "http://www.claireshu.com/favicon3.ico", 
-                            "http://www.claireshu.com/favicon4.ico", 
-                            "http://www.claireshu.com/favicon5.ico",
-                            "http://www.claireshu.com/favicon6.ico", 
-                            "http://www.claireshu.com/favicon7.ico", 
-                            "http://www.claireshu.com/favicon8.ico", 
-                            "http://www.claireshu.com/favicon9.ico", 
-                            "http://www.claireshu.com/favicon0.ico"];
 
-            var favicon = favicons[num];
+function setTitleAndIcon(num, tabId) {
+    var favicon = favicons[num];
 
-            var string1 = "document.title = 'zoom zoom'";
-            var string2 = "document.quuerySelectorAll(\"link[rel*='mask-icon']\")[0].href = '" + favicon + "'";
-            var string3 = "document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = '" + favicon + "'";
-            var string4 = "document.querySelectorAll(\"link[rel*='icon']\")[0].href = '" + favicon + "'";
-            var vlongstring = string1 + ", " + string2 + ", " + string3; 
+    //var string1 = "document.title = '" + title + "'";
+    var string2 = "document.quuerySelectorAll(\"link[rel*='mask-icon']\")[0].href = '" + favicon + "'";
+    var string3 = "document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = '" + favicon + "'";
+    var string4 = "document.querySelectorAll(\"link[rel*='icon']\")[0].href = '" + favicon + "'";
+    var vlongstring = string2 + ", " + string3; 
 
-            chrome.tabs.executeScript(tab.id,{code: vlongstring});
-            chrome.tabs.executeScript(tab.id,{code: string4});
-      });
-    });
+    chrome.tabs.executeScript(tabId,{code: vlongstring});
+    chrome.tabs.executeScript(tabId,{code: string4});
 }
-
