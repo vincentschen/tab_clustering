@@ -15,13 +15,11 @@ function findClusterByTab(clustersObj, tabId){
 */
 function computeMostSimilarCluster(clusters, similarities){
     var highest = [0, 0];
-    console.log(clusters.length); 
     for (var i = 0; i < clusters.length; i ++){
         var sum = 0;
         for (var j = clusters[i].start; j <= clusters[i].end; j ++){
             sum += similarities[j];
         }
-        console.log(sum); 
         var average = sum/(clusters[i].end - clusters[i].start + 1);
 	    if (average > highest[0]) highest = [average, i];
     }
@@ -34,7 +32,7 @@ function tabUpdated(clustersObj, similarities, activeTab){
     
     console.log("highest similarity: " + highest);
     if (highest[0] > threshold){ //add new tab to existing cluster
-        console.log('1');
+        console.log('passes threshold');
         clustersObj.clusters[highest[1]].end ++;
         for (var i = 0; i < clustersObj.clusters.length; i ++) {
             if (clustersObj.clusters[i].end > clustersObj.clusters[highest[1]].end) {
@@ -47,7 +45,8 @@ function tabUpdated(clustersObj, similarities, activeTab){
         chrome.tabs.move(activeTab, {index: clustersObj.clusters[highest[1]].end})
         
     } else { //make a new cluster
-        console.log("2");
+        console.log("fails threshold -- make a new cluster");
+        console.log(similarities.length);
         clustersObj['clusters'].push({"id": clustersObj.clusters.length, "start": similarities.length, "end": similarities.length});
     }
     return clustersObj;

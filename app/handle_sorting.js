@@ -145,7 +145,10 @@
       traditional: true, 
       success: function(msg) {
         alert(msg);
-        tabUpdated(clusters_data, msg, currentId);
+        //console.log(clusters_data);
+        clusters_data = tabUpdated(clusters_data, msg, currentId);
+        //chrome.tabs.move(currentId, {index: 0})
+        //console.log(clusters_data);
       }
     });
   }
