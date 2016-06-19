@@ -6,7 +6,7 @@
   "icons": 
   {
   },
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "http://*/**", "https://*/**"],
   "background": {
     "scripts": [
       "handle_sorting.js"
