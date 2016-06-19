@@ -37,29 +37,38 @@ function sortTabs(prop){
 
 var sources = []
 function getOtherTabSources() {
-  sources = getOtherTabSources
-  promisesArr = []
+  var d = $.Deferred();
   chrome.tabs.query({currentWindow: true}, function(tabs){
+    var numRemaining = tabs.length; 
+    console.log("made it");
     tabs.forEach(function(tab){
+      console.log("counting");
       chrome.tabs.executeScript(
         { 
           code: "document.getElementsByTagName('html')[0].innerHTML;"
         }, 
         function (source) {
           sources.push(source);
-          console.log(sources);
-          promisesArr.push($.Deferred().promise());
+          console.log("Adding source");
+          numRemaining--; 
+          
+          // resolve the promise when there are no more 
+          if (numRemaining === 0) {
+            d.resolve();
+          }
+          
         }
       );
     });
+        
   });
   
-  return promisesArr;
+  return d.promise();
 
 }
 
 var current_tab_source = null; 
-function getCurrentTabSource() {
+function getTabSource() {
   var d = $.Deferred();
   chrome.tabs.executeScript(
     { 
@@ -75,50 +84,53 @@ function getCurrentTabSource() {
 }
 
 function sendCurrentTabsInfo() {
-  sources = []
-  source = ""
   
-  var currentTab = getCurrentTabSource(); 
+  var currentTab = getTabSource(); 
+  var otherTabs = getOtherTabSources();
+  
+  var otherPromiseFulfilled = false; 
+  otherTabs.done(function(){
+    console.log("otherTabs done");
+    if (otherPromiseFulfilled) {
+      makePostRequest();
+    } else {
+      otherPromiseFulfilled = true; 
+    }
+  });
   currentTab.done(function(){
     console.log("currentTab done");
-    
-    
-    sources = ["hey there dir", "shopping amazon", "hey sir derp"];
-    
-    var payload = {
-      docs: sources,
-      input: current_tab_source[0]
+    if (otherPromiseFulfilled) {
+      makePostRequest();
     }
-    
-    console.log(payload);
-    // TEST VALUES
-    // var payload = {
-    //   docs: ["hey there dir", "shopping amazon", "hey sir derp"],
-    //   input: "hey there sir"
-    // };
-
-      
-    $.ajax({
-      type: 'POST',
-      url: "http://localhost:5000/cluster/",
-      data: JSON.stringify(payload),
-      contentType: 'application/json; charset=utf-8',
-      dataType: 'json',
-      traditional: true, 
-      success: function(msg) {
-          alert("Data Saved: " + msg);
-        }
-    });
-    
+    otherPromiseFulfilled = true; 
   });
+}
   
-  // var otherTabsPromises = getOtherTabSources();
-  // for (var i=0; i<otherTabsPromises.length; i++) {
-  //   // all other tabs must complete before proceeding
-  //   otherTabsPromises[i].done(function(){});
-  // }
+function makePostRequest() {
+  var payload = {
+    docs: sources,
+    input: current_tab_source[0]
+  }
+  console.log(payload.docs.length);
+  // console.log(payload);
+  // TEST VALUES
+  // var payload = {
+  //   docs: ["hey there dir", "shopping amazon", "hey sir derp"],
+  //   input: "hey there sir"
+  // };
 
-  
+    
+  $.ajax({
+    type: 'POST',
+    url: "http://localhost:5000/cluster/",
+    data: JSON.stringify(payload),
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'json',
+    traditional: true, 
+    success: function(msg) {
+      alert("Data Saved: " + msg);
+    }
+  });
 }
 
 /* 
@@ -131,6 +143,5 @@ chrome.tabs.onUpdated.addListener(function(tabId , info) {
     console.log("Page loaded")
     sortTabs("url");
     sendCurrentTabsInfo();
-
   }
 });

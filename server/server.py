@@ -11,7 +11,7 @@ def similarities():
         docs = data['docs']
         
         # docs = request.form.getlist('docs')
-        # print "docs: ", docs
+        print "docs: ", len(docs)
         # input_ = request.form['input']
         
         input_ = data['input']
