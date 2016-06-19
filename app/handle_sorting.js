@@ -20,7 +20,7 @@ function sortTabs(prop){
 
 var sources = []
 function getOtherTabSources() {
-  var sources = []
+  console.log("clear");
   var d = $.Deferred();
   chrome.tabs.query({currentWindow: true}, function(tabs){
     var numRemaining = tabs.length; 
@@ -79,11 +79,12 @@ function sendCurrentTabsInfo() {
 }
   
 function makePostRequest() {
+  console.log(sources.length);
   var payload = {
     docs: sources,
     input: current_tab_source[0]
   }
-  console.log("payload docs length" + payload.docs.length);
+  console.log("payload docs length: " + payload.docs.length);
   // console.log(payload);
   // TEST VALUES
   // var payload = {
@@ -101,6 +102,8 @@ function makePostRequest() {
     traditional: true, 
     success: function(msg) {
       alert("Data Saved: " + msg);
+      var sources = [];
+
     }
   });
 }
