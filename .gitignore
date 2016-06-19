@@ -1,2 +1,3 @@
-/server/.env/
-/server/*.pyc
+server/venv/
+server/.env
+server/*.pyc

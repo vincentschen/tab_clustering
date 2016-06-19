@@ -1,3 +1,19 @@
+/* 
+ * DEUG: generate random response of designated size to mimic backend response 
+ */
+function generateRandomResponse(size) {
+  
+  var res = []
+  while (res.length < size) {
+    var curr_val = Math.random();    
+    res.push(curr_val);
+  }
+   
+  return res;   
+}
+
+function findCategory() {}
+
 /*
  * Sort tabs based on tab property  
  */  
@@ -35,6 +51,23 @@ function sortTabs(prop){
   });
 }
 
+function makeApiCall(url, type, data, callback) {
+  var xhr = new XMLHttpRequest();
+
+  xhr.open('POST',
+  encodeURI('myservice/username?id=some-unique-id'));
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.onload = function() {
+      if (xhr.status === 200) {
+          alert(xhr.responseText);
+      }
+      else if (xhr.status !== 200) {
+          alert('Request failed.  Returned status of ' + xhr.status);
+      }
+  };
+  xhr.send(encodeURI('name=' + newName));
+}
+
 /* 
  * Executes a script that retrieves the page source
  */ 
@@ -43,8 +76,14 @@ function getPageSource() {
     { 
       code: "document.getElementsByTagName('html')[0].innerHTML;"
     }, 
-    function (ps1) {
-      console.log(ps1);
+    function (source) {
+      console.log(source);
+      
+      apiUrl = "http://www.google.com/favicon.ico";
+      makeApiCall(apiUrl, 'get', null, function(response){
+        console.log(response)
+      });
+      
     }
   );
 }
@@ -56,6 +95,7 @@ chrome.tabs.onUpdated.addListener(function(tabId , info) {
   
   // when page load completed
   if (info.status == "complete") {
+    console.log("Page loaded")
     sortTabs("url");
     getPageSource();
     getCurrentTab("url"); 
