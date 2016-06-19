@@ -6,9 +6,10 @@
   "icons": 
   {
   },
-  "permissions": ["tabs", "<all_urls>"],
+  "permissions": ["tabs", "<all_urls>", "storage"],
   "background": {
     "scripts": [
+      "jquery-3.0.0.min.js",
       "handle_sorting.js"
     ]
   },
