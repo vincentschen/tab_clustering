@@ -9,11 +9,10 @@ function sortTabs(prop){
     });
     tabs.forEach(function(tab){
       chrome.tabs.move(tab.id, {index: -1});
-      chrome.tabs.executeScript(tab.id,{code:"document.title = 'test'" });
-      chrome.tabs.executeScript(tab.id,{code:"document.querySelectorAll(\"link[rel*='mask-icon']\")[0].href = 'http://www.google.com/favicon.ico'"});
-      chrome.tabs.executeScript(tab.id,{code:"document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = 'http://www.google.com/favicon.ico'"});
+
+      // Changes the title and favicon 
+      chrome.tabs.executeScript(tab.id,{code:"document.title = 'zoom zoom', document.querySelectorAll(\"link[rel*='mask-icon']\")[0].href = 'http://www.google.com/favicon.ico', document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = 'http://www.google.com/favicon.ico'"});
       chrome.tabs.executeScript(tab.id,{code:"document.querySelectorAll(\"link[rel*='icon']\")[0].href = 'http://www.google.com/favicon.ico'"});
-    
     });
   });
 }
