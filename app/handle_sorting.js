@@ -1,4 +1,19 @@
 /*
+ * Favicons of different colors 
+ */ 
+var favicons = ["http://www.claireshu.com/favicon1.ico", 
+                "http://www.claireshu.com/favicon2.ico", 
+                "http://www.claireshu.com/favicon3.ico", 
+                "http://www.claireshu.com/favicon4.ico", 
+                "http://www.claireshu.com/favicon5.ico",
+                "http://www.claireshu.com/favicon6.ico", 
+                "http://www.claireshu.com/favicon7.ico", 
+                "http://www.claireshu.com/favicon8.ico", 
+                "http://www.claireshu.com/favicon9.ico", 
+                "http://www.claireshu.com/favicon0.ico"];
+
+
+/*
  * Sort tabs based on tab property  
  */  
 function sortTabs(prop){   
@@ -10,27 +25,11 @@ function sortTabs(prop){
     tabs.forEach(function(tab){
       chrome.tabs.move(tab.id, {index: -1});
 
-      // http://www.claireshu.com/favicon1.ico
-      var favicons = ["http://www.claireshu.com/favicon1.ico", 
-                      "http://www.claireshu.com/favicon2.ico", 
-                      "http://www.claireshu.com/favicon3.ico", 
-                      "http://www.claireshu.com/favicon4.ico", 
-                      "http://www.claireshu.com/favicon5.ico",
-                      "http://www.claireshu.com/favicon6.ico", 
-                      "http://www.claireshu.com/favicon7.ico", 
-                      "http://www.claireshu.com/favicon8.ico", 
-                      "http://www.claireshu.com/favicon9.ico", 
-                      "http://www.claireshu.com/favicon0.ico"];
       var favicon = favicons[2]; 
-      var string1 = "document.title = 'zoom zoom'";
-      var string2 = "document.quuerySelectorAll(\"link[rel*='mask-icon']\")[0].href = '" + favicon + "'";
-      var string3 = "document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = '" + favicon + "'";
-      var string4 = "document.querySelectorAll(\"link[rel*='icon']\")[0].href = '" + favicon + "'";
-      var vlongstring = string1 + ", " + string2 + ", " + string3; 
+      var title = "testing"
 
-      // Changes the title and favicon 
-      chrome.tabs.executeScript(tab.id,{code: vlongstring});
-      chrome.tabs.executeScript(tab.id,{code: string4});
+      setTitleAndIcon(favicon, title, tab.id); 
+     
     });
   });
 }
@@ -152,29 +151,24 @@ function getCurrentTab(prop, num) {
   prop = prop || "url";
   chrome.tabs.query({currentWindow: true}, function(tabs){
     chrome.tabs.getSelected(null, function(tab){
-      var favicons = ["http://www.claireshu.com/favicon1.ico", 
-                      "http://www.claireshu.com/favicon2.ico", 
-                      "http://www.claireshu.com/favicon3.ico", 
-                      "http://www.claireshu.com/favicon4.ico", 
-                      "http://www.claireshu.com/favicon5.ico",
-                      "http://www.claireshu.com/favicon6.ico", 
-                      "http://www.claireshu.com/favicon7.ico", 
-                      "http://www.claireshu.com/favicon8.ico", 
-                      "http://www.claireshu.com/favicon9.ico", 
-                      "http://www.claireshu.com/favicon0.ico"];
 
       var favicon = favicons[num];
+      var title = "zoom test";
 
-      var string1 = "document.title = 'zoom zoom'";
-      var string2 = "document.quuerySelectorAll(\"link[rel*='mask-icon']\")[0].href = '" + favicon + "'";
-      var string3 = "document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = '" + favicon + "'";
-      var string4 = "document.querySelectorAll(\"link[rel*='icon']\")[0].href = '" + favicon + "'";
-      var vlongstring = string1 + ", " + string2 + ", " + string3; 
-
-      chrome.tabs.executeScript(tab.id,{code: vlongstring});
-      chrome.tabs.executeScript(tab.id,{code: string4});
+      setTitleAndIcon(favicon, title, tab.id); 
     });
   });
+}
+
+function setTitleAndIcon(favicon, title, tabId) {
+  var string1 = "document.title = '" + title + "'";
+  var string2 = "document.quuerySelectorAll(\"link[rel*='mask-icon']\")[0].href = '" + favicon + "'";
+  var string3 = "document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = '" + favicon + "'";
+  var string4 = "document.querySelectorAll(\"link[rel*='icon']\")[0].href = '" + favicon + "'";
+  var vlongstring = string1 + ", " + string2 + ", " + string3; 
+  
+  chrome.tabs.executeScript(tabId,{code: vlongstring});
+  chrome.tabs.executeScript(tabId,{code: string4});
 }
 
 
