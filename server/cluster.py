@@ -22,6 +22,7 @@ def clean_document(content):
     return " ".join(filter(visible, texts))
 
 def compute_similarity(documents, input_):
+    documents = [clean_document(d) for d in documents]
     tfidf_vectorizer = TfidfVectorizer()
     tfidf_matrix = tfidf_vectorizer.fit_transform([input_] + documents)
     return cosine_similarity(tfidf_matrix[0:1], tfidf_matrix)[0].tolist()[1:]
