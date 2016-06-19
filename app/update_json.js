@@ -1,3 +1,4 @@
+// defines favicons for use in marking tabs as part of a cluster
 var favicons = ["http://www.claireshu.com/favicon1.ico", 
                 "http://www.claireshu.com/favicon2.ico", 
                 "http://www.claireshu.com/favicon3.ico", 
