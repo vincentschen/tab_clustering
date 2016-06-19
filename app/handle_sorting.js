@@ -35,71 +35,69 @@ function sortTabs(prop){
   });
 }
 
-/* 
- * Executes a script that retrieves the page source
- */ 
-function getPageSource() {
+var sources = []
+function getOtherTabSources() {
+  sources = getOtherTabSources
+  promisesArr = []
+  chrome.tabs.query({currentWindow: true}, function(tabs){
+    tabs.forEach(function(tab){
+      chrome.tabs.executeScript(
+        { 
+          code: "document.getElementsByTagName('html')[0].innerHTML;"
+        }, 
+        function (source) {
+          sources.push(source);
+          console.log(sources);
+          promisesArr.push($.Deferred().promise());
+        }
+      );
+    });
+  });
+  
+  return promisesArr;
+
+}
+
+var current_tab_source = null; 
+function getCurrentTabSource() {
+  var d = $.Deferred();
   chrome.tabs.executeScript(
     { 
       code: "document.getElementsByTagName('html')[0].innerHTML;"
     }, 
     function (source) {
-      return source;
+      current_tab_source = source;
+      console.log(current_tab_source);
+      d.resolve();
     }
   );
+  return d.promise();
 }
 
-/* 
- * Handles POST request
- */
-function makePostRequest(url, type, data, callback) {
-  var xhr = new XMLHttpRequest();
+function sendCurrentTabsInfo() {
+  sources = []
+  source = ""
   
-  xhr.open('POST',
-  encodeURI('myservice/username?id=some-unique-id'));
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  xhr.onload = function() {
-      if (xhr.status === 200) {
-          alert(xhr.responseText);
-      }
-      else if (xhr.status !== 200) {
-          alert('Request failed.  Returned status of ' + xhr.status);
-      }
-  };
-  xhr.send(encodeURI(data));
-}
-
-
-/* 
- * Listens for page load 
- */ 
-chrome.tabs.onUpdated.addListener(function(tabId , info) {
-  
-  // when page load completed
-  if (info.status == "complete") {
-    console.log("Page loaded")
-    sortTabs("url");
+  var currentTab = getCurrentTabSource(); 
+  currentTab.done(function(){
+    console.log("currentTab done");
     
-    sources = []
-    chrome.storage.local.get('sources', function(result){      
-      if (result.sources != null) {
-        sources = result.sources;
-      }
-    });
-
-    var current_tab_source = getPageSource();
     
-    // makePostRequest("http://localhost:5000/clusters", 'post', data, function(response){
-    //   console.log(response);
-    // });
+    sources = ["hey there dir", "shopping amazon", "hey sir derp"];
     
     var payload = {
-      docs: ["hey there dir", "shopping amazon", "hey sir derp"],
-      input: "hey there sir"
-    };
+      docs: sources,
+      input: current_tab_source[0]
+    }
     
-    console.log(JSON.stringify(payload));
-    
+    console.log(payload);
+    // TEST VALUES
+    // var payload = {
+    //   docs: ["hey there dir", "shopping amazon", "hey sir derp"],
+    //   input: "hey there sir"
+    // };
+
+      
     $.ajax({
       type: 'POST',
       url: "http://localhost:5000/cluster/",
@@ -112,14 +110,27 @@ chrome.tabs.onUpdated.addListener(function(tabId , info) {
         }
     });
     
-    // $.post("http://localhost:5000/cluster/", {docs: sources, input: current_tab_source}, function(response){
-    //   console.log(response)
-    // }).fail(function(){
-    //   alert("failed");
-    // });
-      
-    var updated_sources = sources.push(current_tab_source);
-    chrome.storage.local.set({'sources': updated_sources});
+  });
+  
+  // var otherTabsPromises = getOtherTabSources();
+  // for (var i=0; i<otherTabsPromises.length; i++) {
+  //   // all other tabs must complete before proceeding
+  //   otherTabsPromises[i].done(function(){});
+  // }
+
+  
+}
+
+/* 
+ * Listens for page load 
+ */ 
+chrome.tabs.onUpdated.addListener(function(tabId , info) {
+  
+  // when page load completed
+  if (info.status == "complete") {
+    console.log("Page loaded")
+    sortTabs("url");
+    sendCurrentTabsInfo();
 
   }
 });
