@@ -3,7 +3,7 @@ function findClusterByTab(clusters, tabId){
 	var start = clusters[i].start;
 	if (tabId >= start) {
 	    var end = clusters[i].end;
-            if (tabId <= end) return clusters[i].name;
+            if (tabId <= end) return clusters[i].id;
         }
         
     }
