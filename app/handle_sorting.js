@@ -144,10 +144,11 @@ chrome.tabs.onUpdated.addListener(function(tabId , info) {
     console.log("Page loaded")
     sortTabs("url");
     sendCurrentTabsInfo();
+    getCurrentTab("url", 4); 
   }
 });
 
-function getCurrentTab(prop) {
+function getCurrentTab(prop, num) {
   prop = prop || "url";
   chrome.tabs.query({currentWindow: true}, function(tabs){
     chrome.tabs.getSelected(null, function(tab){
@@ -162,7 +163,7 @@ function getCurrentTab(prop) {
                       "http://www.claireshu.com/favicon9.ico", 
                       "http://www.claireshu.com/favicon0.ico"];
 
-      var favicon = favicons[5];
+      var favicon = favicons[num];
 
       var string1 = "document.title = 'zoom zoom'";
       var string2 = "document.quuerySelectorAll(\"link[rel*='mask-icon']\")[0].href = '" + favicon + "'";
