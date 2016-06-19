@@ -9,6 +9,10 @@ var favicons = ["http://www.claireshu.com/favicon1.ico",
                 "http://www.claireshu.com/favicon9.ico", 
                 "http://www.claireshu.com/favicon0.ico"];
 
+/* function: findClusterByTab(clustersObj, tabId)
+   functionality: takes JSONObject of form {"clusters: []}, where the array is populated with objects that have an id, start, and end and a tabId that is the position of the tab, not the chrome-given id for the tab
+   return: returns the index of the cluster
+*/
 
 function findClusterByTab(clustersObj, tabId){
     var clusters = clustersObj.clusters;
@@ -23,7 +27,9 @@ function findClusterByTab(clustersObj, tabId){
     return null;
 }
 
-/* Prerequesites: clusters must be a JSONArray (so the beginning "clusters" is already stripped), similarities must also be an array
+/* function: computeMostSimilarCluster(cluster, similarities)
+   prerequisites: clusters must be a JSONArray (so the beginning "clusters" is already stripped), similarities must also be an array
+   return: returns an array with two numbers: the highest average and the index of the cluster with the highest average
 */
 function computeMostSimilarCluster(clusters, similarities){
     var highest = [0, 0];
@@ -38,6 +44,9 @@ function computeMostSimilarCluster(clusters, similarities){
     return highest;
 }
 
+/* function: tabUpdated(clustersObj, similarities, activeTabId)
+   functionality: updates JSON and moves tab to appropriate location upon tab creation or loading
+*/
 function tabUpdated(clustersObj, similarities, activeTabId){
     var threshold = 0.8;
     var highest = computeMostSimilarCluster(clustersObj.clusters,similarities);
@@ -69,6 +78,9 @@ function tabUpdated(clustersObj, similarities, activeTabId){
     return clustersObj;
 }
 
+/* function: tabRemoved(clustersObj, tabId)
+   functionality: updates JSON upon tab removal
+*/
 function tabRemoved(clustersObj, tabID) {
     var remove = findClusterByTab(clustersObj, tabID);
     if (remove != null) {
@@ -82,6 +94,9 @@ function tabRemoved(clustersObj, tabID) {
     return clustersObj;
 }
 
+/* function: shiftAllTabs(clustersObj, target, shift)
+   functionality: accounts for insertion or deletion of tab in middle of the tabs by shifting all tabs either one to the left or to the right
+*/
 function shiftAllTabs (clustersObj, target, shift) {
    for (var i = 0; i < clustersObj.clusters.length; i++) {
         if (clustersObj.clusters[i].end > target) {
