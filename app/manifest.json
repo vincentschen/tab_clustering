@@ -10,6 +10,7 @@
   "background": {
     "scripts": [
       "jquery-3.0.0.min.js",
+      "update_json.js",
       "handle_sorting.js"
     ]
   },
