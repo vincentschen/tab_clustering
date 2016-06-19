@@ -1,20 +1,3 @@
-/* INITIALIZATION */
-
-
-/* 
- * DEBUG: generate random response of designated size to mimic backend response 
- */
-function generateRandomResponse(size) {
-  
-  var res = []
-  while (res.length < size) {
-    var curr_val = Math.random();    
-    res.push(curr_val);
-  }
-   
-  return res;   
-}
-
 /*
  * Sort tabs based on tab property  
  */  
@@ -37,6 +20,7 @@ function sortTabs(prop){
 
 var sources = []
 function getOtherTabSources() {
+  var sources = []
   var d = $.Deferred();
   chrome.tabs.query({currentWindow: true}, function(tabs){
     var numRemaining = tabs.length; 
@@ -54,6 +38,7 @@ function getOtherTabSources() {
           
           // resolve the promise when there are no more 
           if (numRemaining === 0) {
+            console.log(sources.length)
             d.resolve();
           }
           
@@ -88,22 +73,9 @@ function sendCurrentTabsInfo() {
   var currentTab = getTabSource(); 
   var otherTabs = getOtherTabSources();
   
-  var otherPromiseFulfilled = false; 
-  otherTabs.done(function(){
-    console.log("otherTabs done");
-    if (otherPromiseFulfilled) {
-      makePostRequest();
-    } else {
-      otherPromiseFulfilled = true; 
-    }
-  });
-  currentTab.done(function(){
-    console.log("currentTab done");
-    if (otherPromiseFulfilled) {
-      makePostRequest();
-    }
-    otherPromiseFulfilled = true; 
-  });
+  $.when(otherTabs, currentTab).done(function(){
+    makePostRequest();
+  })
 }
   
 function makePostRequest() {
@@ -111,7 +83,7 @@ function makePostRequest() {
     docs: sources,
     input: current_tab_source[0]
   }
-  console.log(payload.docs.length);
+  console.log("payload docs length" + payload.docs.length);
   // console.log(payload);
   // TEST VALUES
   // var payload = {
