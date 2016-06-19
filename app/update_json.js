@@ -4,7 +4,7 @@ function findClusterByTab(clustersObj, tabId){
         var start = clusters[i].start;
         if (tabId >= start) {
             var end = clusters[i].end;
-            if (tabId <= end) return clusters[i].id;
+            if (tabId <= end) return i;
         }
     }
     return null;
@@ -30,12 +30,7 @@ function tabUpdated(clustersObj, similarities, activeTab){
     var highest = computeMostSimilarCluster(clustersObj.clusters,similarities);
     if (highest[0] > threshold){ //add new tab to existing cluster
         clustersObj.clusters[highest[1]].end ++;
-        for (var i = 0; i < clustersObj.clusters.length; i++) {
-            if (clustersObj.clusters[i].end > clustersObj.clusters[highest[1]].end) {
-                clustersObj.clusters[i].start ++;
-		        clustersObj.clusters[i].end ++;
-            }
-        }
+ 	clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[highest[1]].end, 1);
         //move tab over
         chrome.tabs.move(activeTab.id, {index: clustersObj.clusters[highest[1]].end}
     } else { //make a new cluster
@@ -46,5 +41,21 @@ function tabUpdated(clustersObj, similarities, activeTab){
 }
 
 function tabRemoved(clustersObj, tabID) {
-    //TODO: Not yet implemented; var
+    //TODO: change json if start & end are the same (i.e. the tab was the only one in the cluster)
+    var remove = findClusterByTab(clustersObj, tabID);
+    if (remove != null) {
+	clustersObj.clusters[remove].end--;
+        clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[remove].end, -1);
+    }
+    return clustersObj;
+}
+
+function shiftAllTabs (clustersObj, target, shift) {
+   for (var i = 0; i < clustersObj.clusters.length; i++) {
+        if (clustersObj.clusters[i].end > target) {
+            clustersObj.clusters[i].start = clustersObj.clusters[i].start + shift;
+            clustersObj.clusters[i].end = clustersObj.clusters[i].end + shift;
+        }
+    }
+    return clustersObj;
 }
