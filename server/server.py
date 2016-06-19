@@ -12,9 +12,13 @@ def similarities():
         
         # docs = request.form.getlist('docs')
         print "docs: ", len(docs)
+        print type(docs)
+        print (docs[0] == docs[1])
         # input_ = request.form['input']
         
         input_ = data['input']
+        
+        
         # print "input:", input_
         sims = cluster.compute_similarity(docs, input_)
         response = json.dumps(sims)

@@ -8,7 +8,7 @@ function sortTabs(prop){
       return a[prop] == b[prop] ? 0 : (a[prop] < b[prop] ? -1 : 1);
     });
     tabs.forEach(function(tab){
-      chrome.tabs.move(tab.id, {index: -1});
+      // chrome.tabs.move(tab.id, {index: -1});
       chrome.tabs.executeScript(tab.id,{code:"document.title = 'test'" });
       chrome.tabs.executeScript(tab.id,{code:"document.querySelectorAll(\"link[rel*='mask-icon']\")[0].href = 'http://www.google.com/favicon.ico'"});
       chrome.tabs.executeScript(tab.id,{code:"document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = 'http://www.google.com/favicon.ico'"});
@@ -20,6 +20,7 @@ function sortTabs(prop){
 
 var sources = []
 function getOtherTabSources() {
+  sources = [];
   console.log("clear");
   var d = $.Deferred();
   chrome.tabs.query({currentWindow: true}, function(tabs){
@@ -27,23 +28,33 @@ function getOtherTabSources() {
     console.log("made it");
     tabs.forEach(function(tab){
       console.log("counting");
-      chrome.tabs.executeScript(
-        { 
-          code: "document.getElementsByTagName('html')[0].innerHTML;"
-        }, 
-        function (source) {
-          sources.push(source);
-          console.log("Adding source");
-          numRemaining--; 
-          
-          // resolve the promise when there are no more 
-          if (numRemaining === 0) {
-            console.log(sources.length)
-            d.resolve();
+      
+      var currentId = null; 
+      chrome.tabs.getSelected(null, function(tab) {
+        currentId = tab.id; 
+      });
+      
+      // do not compare to yourself
+      if (tab.id !== currentId) {
+        chrome.tabs.executeScript(tab.id,
+          { 
+            code: "document.getElementsByTagName('html')[0].innerHTML;"
+          }, 
+          function (source) {
+            sources.push(source[0]);
+            // console.log(source[0]);
+            console.log("Adding source");
+            numRemaining--; 
+            
+            // resolve the promise when there are no more 
+            if (numRemaining === 1) {
+              d.resolve();
+            }
+            
           }
-          
-        }
-      );
+        );
+      }
+      
     });
         
   });
@@ -60,8 +71,8 @@ function getTabSource() {
       code: "document.getElementsByTagName('html')[0].innerHTML;"
     }, 
     function (source) {
-      current_tab_source = source;
-      console.log(current_tab_source);
+      current_tab_source = source[0];
+      // console.log(current_tab_source);
       d.resolve();
     }
   );
@@ -79,10 +90,9 @@ function sendCurrentTabsInfo() {
 }
   
 function makePostRequest() {
-  console.log(sources.length);
   var payload = {
     docs: sources,
-    input: current_tab_source[0]
+    input: current_tab_source
   }
   console.log("payload docs length: " + payload.docs.length);
   // console.log(payload);
@@ -92,6 +102,7 @@ function makePostRequest() {
   //   input: "hey there sir"
   // };
 
+  console.log(payload.docs[0]);
     
   $.ajax({
     type: 'POST',
@@ -101,9 +112,7 @@ function makePostRequest() {
     dataType: 'json',
     traditional: true, 
     success: function(msg) {
-      alert("Data Saved: " + msg);
-      var sources = [];
-
+      alert("Data Saved: " + msg);      
     }
   });
 }
