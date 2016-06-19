@@ -29,11 +29,6 @@ function getOtherTabSources() {
     tabs.forEach(function(tab){
       console.log("counting");
       
-      var currentId = null; 
-      chrome.tabs.getSelected(null, function(tab) {
-        currentId = tab.id; 
-      });
-      
       // do not compare to yourself
       if (tab.id !== currentId) {
         chrome.tabs.executeScript(tab.id,
@@ -81,28 +76,29 @@ function getTabSource() {
 
 function sendCurrentTabsInfo() {
   
+  // get the id of the current tab
+  var currentId = null; 
+  chrome.tabs.getSelected(null, function(tab) {
+    currentId = tab.id; 
+  });
+  
   var currentTab = getTabSource(); 
-  var otherTabs = getOtherTabSources();
+  var otherTabs = getOtherTabSources(currentId);
   
   $.when(otherTabs, currentTab).done(function(){
-    makePostRequest();
+    makePostRequest(currentId);
   })
 }
-  
-function makePostRequest() {
+
+/* 
+ * Sends a post request to the server with payload information
+ */ 
+function makePostRequest(currentId) {
   var payload = {
     docs: sources,
     input: current_tab_source
   }
   console.log("payload docs length: " + payload.docs.length);
-  // console.log(payload);
-  // TEST VALUES
-  // var payload = {
-  //   docs: ["hey there dir", "shopping amazon", "hey sir derp"],
-  //   input: "hey there sir"
-  // };
-
-  console.log(payload.docs[0]);
     
   $.ajax({
     type: 'POST',
