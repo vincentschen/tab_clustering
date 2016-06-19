@@ -1,3 +1,20 @@
+/* INITIALIZATION */
+
+
+/* 
+ * DEBUG: generate random response of designated size to mimic backend response 
+ */
+function generateRandomResponse(size) {
+  
+  var res = []
+  while (res.length < size) {
+    var curr_val = Math.random();    
+    res.push(curr_val);
+  }
+   
+  return res;   
+}
+
 /*
  * Sort tabs based on tab property  
  */  
@@ -18,18 +35,102 @@ function sortTabs(prop){
   });
 }
 
-/* 
- * Executes a script that retrieves the page source
- */ 
-function getPageSource() {
+var sources = []
+function getOtherTabSources() {
+  var d = $.Deferred();
+  chrome.tabs.query({currentWindow: true}, function(tabs){
+    var numRemaining = tabs.length; 
+    console.log("made it");
+    tabs.forEach(function(tab){
+      console.log("counting");
+      chrome.tabs.executeScript(
+        { 
+          code: "document.getElementsByTagName('html')[0].innerHTML;"
+        }, 
+        function (source) {
+          sources.push(source);
+          console.log("Adding source");
+          numRemaining--; 
+          
+          // resolve the promise when there are no more 
+          if (numRemaining === 0) {
+            d.resolve();
+          }
+          
+        }
+      );
+    });
+        
+  });
+  
+  return d.promise();
+
+}
+
+var current_tab_source = null; 
+function getTabSource() {
+  var d = $.Deferred();
   chrome.tabs.executeScript(
     { 
       code: "document.getElementsByTagName('html')[0].innerHTML;"
     }, 
-    function (ps1) {
-      console.log(ps1);
+    function (source) {
+      current_tab_source = source;
+      console.log(current_tab_source);
+      d.resolve();
     }
   );
+  return d.promise();
+}
+
+function sendCurrentTabsInfo() {
+  
+  var currentTab = getTabSource(); 
+  var otherTabs = getOtherTabSources();
+  
+  var otherPromiseFulfilled = false; 
+  otherTabs.done(function(){
+    console.log("otherTabs done");
+    if (otherPromiseFulfilled) {
+      makePostRequest();
+    } else {
+      otherPromiseFulfilled = true; 
+    }
+  });
+  currentTab.done(function(){
+    console.log("currentTab done");
+    if (otherPromiseFulfilled) {
+      makePostRequest();
+    }
+    otherPromiseFulfilled = true; 
+  });
+}
+  
+function makePostRequest() {
+  var payload = {
+    docs: sources,
+    input: current_tab_source[0]
+  }
+  console.log(payload.docs.length);
+  // console.log(payload);
+  // TEST VALUES
+  // var payload = {
+  //   docs: ["hey there dir", "shopping amazon", "hey sir derp"],
+  //   input: "hey there sir"
+  // };
+
+    
+  $.ajax({
+    type: 'POST',
+    url: "http://localhost:5000/cluster/",
+    data: JSON.stringify(payload),
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'json',
+    traditional: true, 
+    success: function(msg) {
+      alert("Data Saved: " + msg);
+    }
+  });
 }
 
 /* 
@@ -39,7 +140,8 @@ chrome.tabs.onUpdated.addListener(function(tabId , info) {
   
   // when page load completed
   if (info.status == "complete") {
+    console.log("Page loaded")
     sortTabs("url");
-    getPageSource();
+    sendCurrentTabsInfo();
   }
 });
