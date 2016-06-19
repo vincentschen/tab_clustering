@@ -9,15 +9,16 @@ What It Does:
 TabShifter is a Google Chrome extension that moves your tab to a logical place with your other tabs. Each tab is placed in a cluster with other tabs that are similar to it. Upon opening a tab, our backend returns an array of similarity scores between that tab and other open tabs. Then, we figure out which cluster that tab is most similar to and move that tab to that cluster. Additional features are added including coloring of favicons in a particular cluster to the same color for easy visualization of cluster start and ends.
 
 How We Built It:
-
+Our backend is built in Python and our tab data is stored as JSON. We integrated the Chrome API.
 
 Challenges We Ran Into:
-
+We had trouble integrating all of the components of our extension, notably editing the JSON/moving the tab with the backend and the coloration of the tabs. We ended up moving much of our code to one place instead of decomposing it to separate classes as we had before.
 
 Accomplishments We're Proud Of:
+Even though it doesn't completely work, we're proud that we were able to move tabs and mess with the coloration. In addition, we built a pretty dope backend.
 
 What We Learned:
 We strengthened our Javascript skills and explore Chrome Extensions and the tabs API.
 
 What's Next for TabShifter
-
+We'd love to use this ourselves! Next steps would include building a popup/window that triggers when hovering over a tab that delivers information about the cluster and fine tuning the threshold to manage what size of clusters we want.
