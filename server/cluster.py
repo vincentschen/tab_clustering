@@ -24,4 +24,4 @@ def clean_document(content):
 def compute_similarity(documents, input_):
     tfidf_vectorizer = TfidfVectorizer()
     tfidf_matrix = tfidf_vectorizer.fit_transform([input_] + documents)
-    return cosine_similarity(tfidf_matrix[0:1], tfidf_matrix)
+    return cosine_similarity(tfidf_matrix[0:1], tfidf_matrix)[0].tolist()[1:]
