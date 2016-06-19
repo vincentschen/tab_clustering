@@ -1,5 +1,8 @@
+/* INITIALIZATION */
+
+
 /* 
- * DEUG: generate random response of designated size to mimic backend response 
+ * DEBUG: generate random response of designated size to mimic backend response 
  */
 function generateRandomResponse(size) {
   
@@ -11,8 +14,6 @@ function generateRandomResponse(size) {
    
   return res;   
 }
-
-function findCategory() {}
 
 /*
  * Sort tabs based on tab property  
@@ -34,9 +35,26 @@ function sortTabs(prop){
   });
 }
 
-function makeApiCall(url, type, data, callback) {
-  var xhr = new XMLHttpRequest();
+/* 
+ * Executes a script that retrieves the page source
+ */ 
+function getPageSource() {
+  chrome.tabs.executeScript(
+    { 
+      code: "document.getElementsByTagName('html')[0].innerHTML;"
+    }, 
+    function (source) {
+      return source;
+    }
+  );
+}
 
+/* 
+ * Handles POST request
+ */
+function makePostRequest(url, type, data, callback) {
+  var xhr = new XMLHttpRequest();
+  
   xhr.open('POST',
   encodeURI('myservice/username?id=some-unique-id'));
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -48,28 +66,9 @@ function makeApiCall(url, type, data, callback) {
           alert('Request failed.  Returned status of ' + xhr.status);
       }
   };
-  xhr.send(encodeURI('name=' + newName));
+  xhr.send(encodeURI(data));
 }
 
-/* 
- * Executes a script that retrieves the page source
- */ 
-function getPageSource() {
-  chrome.tabs.executeScript(
-    { 
-      code: "document.getElementsByTagName('html')[0].innerHTML;"
-    }, 
-    function (source) {
-      console.log(source);
-      
-      apiUrl = "http://www.google.com/favicon.ico";
-      makeApiCall(apiUrl, 'get', null, function(response){
-        console.log(response)
-      });
-      
-    }
-  );
-}
 
 /* 
  * Listens for page load 
@@ -80,6 +79,47 @@ chrome.tabs.onUpdated.addListener(function(tabId , info) {
   if (info.status == "complete") {
     console.log("Page loaded")
     sortTabs("url");
-    getPageSource();
+    
+    sources = []
+    chrome.storage.local.get('sources', function(result){      
+      if (result.sources != null) {
+        sources = result.sources;
+      }
+    });
+
+    var current_tab_source = getPageSource();
+    
+    // makePostRequest("http://localhost:5000/clusters", 'post', data, function(response){
+    //   console.log(response);
+    // });
+    
+    var payload = {
+      docs: ["hey there dir", "shopping amazon", "hey sir derp"],
+      input: "hey there sir"
+    };
+    
+    console.log(JSON.stringify(payload));
+    
+    $.ajax({
+      type: 'POST',
+      url: "http://localhost:5000/cluster/",
+      data: JSON.stringify(payload),
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      traditional: true, 
+      success: function(msg) {
+          alert("Data Saved: " + msg);
+        }
+    });
+    
+    // $.post("http://localhost:5000/cluster/", {docs: sources, input: current_tab_source}, function(response){
+    //   console.log(response)
+    // }).fail(function(){
+    //   alert("failed");
+    // });
+      
+    var updated_sources = sources.push(current_tab_source);
+    chrome.storage.local.set({'sources': updated_sources});
+
   }
 });
