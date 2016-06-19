@@ -50,8 +50,9 @@ function tabUpdated(clustersObj, similarities, activeTabId){
     if (highest[0] > threshold){ //add new tab to existing cluster
         console.log('passes threshold');
         clustersObj.clusters[highest[1]].end++;
-        var num = (findClusterByTab(clustersObj, highest[1].end))%10
+        var num = (findClusterByTab(clustersObj, highest[1].end))%10;
         setTitleAndIcon(num, activeTabId); 
+        console.log("favicon num: " + num); 
         //getCurrentTab(activeTabId, findClusterByTab(clustersObj, highest[1].end)%10); 
       clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[highest[1]].end, 1);
         //move tab over
@@ -64,9 +65,9 @@ function tabUpdated(clustersObj, similarities, activeTabId){
         clustersObj['clusters'].push({"id": clustersObj.clusters.length, "start": similarities.length, "end": similarities.length});
         chrome.tabs.move(activeTabId, {index: similarities.length})
         //getCurrentTab(activeTabId, findClusterByTab(clustersObj, highest[1].end)%10); 
-        var num = (findClusterByTab(clustersObj, highest[1].end))%10
+        var num = (findClusterByTab(clustersObj, similarities.length))%10;
         setTitleAndIcon(num, activeTabId); 
-
+        console.log("favicon num: " + num);
     }
     return clustersObj;
 }
