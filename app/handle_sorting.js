@@ -1,4 +1,8 @@
 function sortTabs(prop){
+  /*
+   * Sort tabs based on tab property  
+   */  
+   
   prop = prop || "url";
   chrome.tabs.query({currentWindow: true}, function(tabs){
     tabs.sort(function(a,b){
@@ -10,7 +14,11 @@ function sortTabs(prop){
   });
 }
 
-chrome.tabs.onCreated.addListener(function(tab){
-  console.log("hello");
-  sortTabs("url");
+chrome.tabs.onUpdated.addListener(function(tabId , info) {
+  // listens for page update event
+  
+  if (info.status == "complete") {
+    // when page load completed
+    sortTabs("url");
+  }
 });
