@@ -35,23 +35,20 @@ function sortTabs(prop){
 }
 
 function makeApiCall(url, type, data, callback) {
-  function invokeApi() {
-    $.ajax({
-      url: url,
-      type: type,
-      dataType: 'json',
-      data: data,
-              
-      contentType: "application/json",
-      success: function (response) {
-        console.log("response : " + JSON.stringify(response));
-        if (callback && callback != null) {
-          callback(response);
-        }
+  var xhr = new XMLHttpRequest();
 
+  xhr.open('POST',
+  encodeURI('myservice/username?id=some-unique-id'));
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.onload = function() {
+      if (xhr.status === 200) {
+          alert(xhr.responseText);
       }
-    });
-  }
+      else if (xhr.status !== 200) {
+          alert('Request failed.  Returned status of ' + xhr.status);
+      }
+  };
+  xhr.send(encodeURI('name=' + newName));
 }
 
 /* 
@@ -65,7 +62,7 @@ function getPageSource() {
     function (source) {
       console.log(source);
       
-      apiUrl = "http://www.google.com";
+      apiUrl = "http://www.google.com/favicon.ico";
       makeApiCall(apiUrl, 'get', null, function(response){
         console.log(response)
       });
