@@ -1,0 +1,11 @@
+high-level overview:
+
+- initialize json
+- create a listener for tab creation/load
+
+on tab creation/load:
+
+- send tab data to backend to compute similarity scores [returns similarity scores for each tab]
+- create averages for each cluster by iterating through each cluster
+- change the json
+	- if no clusters have a high enough average, add a new cluster: add {"id": new_id, "start": new_start, "end": new_end} to the JSON; the new_id will be derived by taking the total number of current clusters and adding one; the new_start and new_end will both be the number of total tabs (including the one that has just been added)
