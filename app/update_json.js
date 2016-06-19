@@ -11,22 +11,24 @@ function findClusterByTab(clustersObj, tabId){
     return null;
 }
 
+/* Prerequesites: clusters must be a JSONArray (so the beginning "clusters" is already stripped), similarities must also be an array
+*/
 function computeClusterSimilarities(clusters, similarities){
     var highest = [0, 0];
     for (i = 0; i < clusters.length; i ++){
         var sum = 0;
-        for (j = clusters[i].start; i <= clusters[i].end; i ++){
+        for (j = clusters[i].start; j <= clusters[i].end; j ++){
             sum += similarities[j];
         }
-        var average = sum/(clusters[i].start - clusters[i].end + 1);
-	if (average > highest) highest = [average, i];
+        var average = sum/(clusters[i].end - clusters[i].start + 1);
+	if (average > highest[0]) highest = [average, i];
     }
     return highest;
 }
 
 function tabUpdated(clustersObj, similarities){
-    const var threshold = 0.5;
-    highest = computeClusterSimilarities(clustersObj.clusters,similarities);
+    var threshold = 0.5;
+    var highest = computeClusterSimilarities(clustersObj.clusters,similarities);
     if (highest[0] > threshold){
         clustersObj.clusters[highest[1]].end ++;
         for (i = 0; i < clustersObj.clusters.length; i ++) {
@@ -36,8 +38,7 @@ function tabUpdated(clustersObj, similarities){
             }
         }
     } else {
-        var clustersArray = JSON.parse(clustersObj);
-	clustersArray['clusters'].push({"id": clustersObj.cluster.length, "start": clustersObj.clusters.length, "end": clustersObj.clusters.length});
-        clustersObj = clustersArray.stringify();
+        clustersObj['clusters'].push({"id": clustersObj.clusters.length, "start": similarities.length, "end": similarities.length});
     }
+    return clustersObj;
 }
