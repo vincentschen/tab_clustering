@@ -39,7 +39,7 @@ function computeMostSimilarCluster(clusters, similarities){
 }
 
 function tabUpdated(clustersObj, similarities, activeTabId){
-    var threshold = 0.5;
+    var threshold = 0.8;
     var highest = computeMostSimilarCluster(clustersObj.clusters,similarities);
     
     console.log("highest similarity: " + highest);
@@ -68,11 +68,14 @@ function tabUpdated(clustersObj, similarities, activeTabId){
 }
 
 function tabRemoved(clustersObj, tabID) {
-    //TODO: change json if start & end are the same (i.e. the tab was the only one in the cluster)
     var remove = findClusterByTab(clustersObj, tabID);
     if (remove != null) {
-	clustersObj.clusters[remove].end--;
-        clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[remove].end, -1);
+	if (clustersObj.clusters[remove].end != clustersObj.clusters[remove]start){
+	    clustersObj.clusters[remove].end--;
+            clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[remove].end, -1);
+	} else {
+	    clustersObj.clusters.splice(remove, 1);
+        }
     }
     return clustersObj;
 }
