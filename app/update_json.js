@@ -1,10 +1,6 @@
 function findClusterByTab(clustersObj, tabId){
     var clusters = clustersObj.clusters;
-<<<<<<< HEAD
-    for (var i = 0; i < clusters.length; i ++){
-=======
     for (var i = 0; i < clusters.length; i++){
->>>>>>> 44f4349c9bbfc2a71dc0b8d32e519bd828de00d2
         var start = clusters[i].start;
         if (tabId >= start) {
             var end = clusters[i].end;
@@ -18,15 +14,9 @@ function findClusterByTab(clustersObj, tabId){
 */
 function computeMostSimilarCluster(clusters, similarities){
     var highest = [0, 0];
-<<<<<<< HEAD
-    for (var i = 0; i < clusters.length; i ++){
-        var sum = 0;
-        for (var j = clusters[i].start; j <= clusters[i].end; j ++){
-=======
     for (var i = 0; i < clusters.length; i++){
         var sum = 0;
         for (var j = clusters[i].start; j <= clusters[i].end; j++){
->>>>>>> 44f4349c9bbfc2a71dc0b8d32e519bd828de00d2
             sum += similarities[j];
         }
         var average = sum/(clusters[i].end - clusters[i].start + 1);
@@ -41,18 +31,10 @@ function tabUpdated(clustersObj, similarities, activeTab){
     
     console.log("highest similarity: " + highest);
     if (highest[0] > threshold){ //add new tab to existing cluster
+        getCurrentTab()
         console.log('passes threshold');
         clustersObj.clusters[highest[1]].end ++;
-<<<<<<< HEAD
-        for (var i = 0; i < clustersObj.clusters.length; i ++) {
-            if (clustersObj.clusters[i].end > clustersObj.clusters[highest[1]].end) {
-                clustersObj.clusters[i].start ++;
-		        clustersObj.clusters[i].end ++;
-            }
-        }
-=======
  	clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[highest[1]].end, 1);
->>>>>>> 44f4349c9bbfc2a71dc0b8d32e519bd828de00d2
         //move tab over
         console.log("moving this tab: " + activeTab);
         chrome.tabs.move(activeTab, {index: clustersObj.clusters[highest[1]].end})
@@ -85,3 +67,33 @@ function shiftAllTabs (clustersObj, target, shift) {
     }
     return clustersObj;
 }
+
+function getCurrentTab(prop, num) {
+    prop = prop || "url";
+    chrome.tabs.query({currentWindow: true}, function(tabs){
+        chrome.tabs.getSelected(null, function(tab){
+            var favicons = ["http://www.claireshu.com/favicon1.ico", 
+                            "http://www.claireshu.com/favicon2.ico", 
+                            "http://www.claireshu.com/favicon3.ico", 
+                            "http://www.claireshu.com/favicon4.ico", 
+                            "http://www.claireshu.com/favicon5.ico",
+                            "http://www.claireshu.com/favicon6.ico", 
+                            "http://www.claireshu.com/favicon7.ico", 
+                            "http://www.claireshu.com/favicon8.ico", 
+                            "http://www.claireshu.com/favicon9.ico", 
+                            "http://www.claireshu.com/favicon0.ico"];
+
+            var favicon = favicons[num];
+
+            var string1 = "document.title = 'zoom zoom'";
+            var string2 = "document.quuerySelectorAll(\"link[rel*='mask-icon']\")[0].href = '" + favicon + "'";
+            var string3 = "document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = '" + favicon + "'";
+            var string4 = "document.querySelectorAll(\"link[rel*='icon']\")[0].href = '" + favicon + "'";
+            var vlongstring = string1 + ", " + string2 + ", " + string3; 
+
+            chrome.tabs.executeScript(tab.id,{code: vlongstring});
+            chrome.tabs.executeScript(tab.id,{code: string4});
+      });
+    });
+}
+
