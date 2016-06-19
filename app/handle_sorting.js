@@ -1,5 +1,7 @@
 /* INITIALIZATION */
 
+clusters_data = {'clusters':[]}
+
 
 /* 
  * DEBUG: generate random response of designated size to mimic backend response 
@@ -128,7 +130,7 @@ function makePostRequest() {
     dataType: 'json',
     traditional: true, 
     success: function(msg) {
-      alert("Data Saved: " + msg);
+      tabUpdated(clusters, msg)
     }
   });
 }
