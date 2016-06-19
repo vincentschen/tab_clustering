@@ -1,3 +1,22 @@
+/* INITIALIZATION */
+
+clusters_data = {'clusters':[]}
+
+
+/* 
+ * DEBUG: generate random response of designated size to mimic backend response 
+ */
+function generateRandomResponse(size) {
+  
+  var res = []
+  while (res.length < size) {
+    var curr_val = Math.random();    
+    res.push(curr_val);
+  }
+   
+  return res;   
+}
+
 /*
  * Favicons of different colors 
  */ 
@@ -128,7 +147,7 @@ function makePostRequest() {
     dataType: 'json',
     traditional: true, 
     success: function(msg) {
-      alert("Data Saved: " + msg);      
+      tabUpdated(clusters, msg)
     }
   });
 }
