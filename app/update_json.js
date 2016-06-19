@@ -1,10 +1,23 @@
+var favicons = ["http://www.claireshu.com/favicon1.ico", 
+                "http://www.claireshu.com/favicon2.ico", 
+                "http://www.claireshu.com/favicon3.ico", 
+                "http://www.claireshu.com/favicon4.ico", 
+                "http://www.claireshu.com/favicon5.ico",
+                "http://www.claireshu.com/favicon6.ico", 
+                "http://www.claireshu.com/favicon7.ico", 
+                "http://www.claireshu.com/favicon8.ico", 
+                "http://www.claireshu.com/favicon9.ico", 
+                "http://www.claireshu.com/favicon0.ico"];
+
 /* function: findClusterByTab(clustersObj, tabId)
    functionality: takes JSONObject of form {"clusters: []}, where the array is populated with objects that have an id, start, and end and a tabId that is the position of the tab, not the chrome-given id for the tab
    return: returns the index of the cluster
 */
+
 function findClusterByTab(clustersObj, tabId){
     var clusters = clustersObj.clusters;
-    for (var i = 0; i < clusters.length; i ++){
+
+    for (var i = 0; i < clusters.length; i++){
         var start = clusters[i].start;
         if (tabId >= start) {
             var end = clusters[i].end;
@@ -20,10 +33,9 @@ function findClusterByTab(clustersObj, tabId){
 */
 function computeMostSimilarCluster(clusters, similarities){
     var highest = [0, 0];
-    for (var i = 0; i < clusters.length; i ++){
+    for (var i = 0; i < clusters.length; i++){
         var sum = 0;
-        for (var j = clusters[i].start; j <= clusters[i].end; j ++){
-
+        for (var j = clusters[i].start; j <= clusters[i].end; j++){
             sum += similarities[j];
         }
         var average = sum/(clusters[i].end - clusters[i].start + 1);
@@ -42,9 +54,11 @@ function tabUpdated(clustersObj, similarities, activeTabId){
     console.log("highest similarity: " + highest);
     if (highest[0] > threshold){ //add new tab to existing cluster
         console.log('passes threshold');
-        clustersObj.clusters[highest[1]].end ++;
-
- 	clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[highest[1]].end, 1);
+        clustersObj.clusters[highest[1]].end++;
+        var num = (findClusterByTab(clustersObj, highest[1].end))%10
+        setTitleAndIcon(num, activeTabId); 
+        //getCurrentTab(activeTabId, findClusterByTab(clustersObj, highest[1].end)%10); 
+ 	    clustersObj = shiftAllTabs(clustersObj, clustersObj.clusters[highest[1]].end, 1);
         //move tab over
         console.log("moving this tab: " + activeTabId);
         chrome.tabs.move(activeTabId, {index: clustersObj.clusters[highest[1]].end})
@@ -53,7 +67,11 @@ function tabUpdated(clustersObj, similarities, activeTabId){
         console.log("fails threshold -- make a new cluster");
         console.log(similarities.length);
         clustersObj['clusters'].push({"id": clustersObj.clusters.length, "start": similarities.length, "end": similarities.length});
-	chrome.tabs.move(activeTabId, {index: similarities.length})
+        chrome.tabs.move(activeTabId, {index: similarities.length})
+        //getCurrentTab(activeTabId, findClusterByTab(clustersObj, highest[1].end)%10); 
+        var num = (findClusterByTab(clustersObj, highest[1].end))%10
+        setTitleAndIcon(num, activeTabId); 
+
     }
     return clustersObj;
 }
@@ -85,4 +103,18 @@ function shiftAllTabs (clustersObj, target, shift) {
         }
     }
     return clustersObj;
+}
+
+
+function setTitleAndIcon(num, tabId) {
+    var favicon = favicons[num];
+
+    //var string1 = "document.title = '" + title + "'";
+    var string2 = "document.quuerySelectorAll(\"link[rel*='mask-icon']\")[0].href = '" + favicon + "'";
+    var string3 = "document.querySelectorAll(\"link[rel*='shortcut icon']\")[0].href = '" + favicon + "'";
+    var string4 = "document.querySelectorAll(\"link[rel*='icon']\")[0].href = '" + favicon + "'";
+    var vlongstring = string2 + ", " + string3; 
+
+    chrome.tabs.executeScript(tabId,{code: vlongstring});
+    chrome.tabs.executeScript(tabId,{code: string4});
 }
