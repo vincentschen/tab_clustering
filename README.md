@@ -1,3 +1,6 @@
+## About
+TabShifter is a Google Chrome extension that moves your tab to a logical place with your other tabs. Each tab is placed in a cluster with other tabs that are similar to it. Upon opening a tab, our backend returns an array of similarity scores between that tab and other open tabs. Then, we figure out which cluster that tab is most similar to and move that tab to that cluster. Additional features are added including coloring of favicons in a particular cluster to the same color for easy visualization of cluster start and ends.
+
 ## First time install
 1. Download or clone the repo. 
 2. Open `chrome://extensions`.
